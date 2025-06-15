@@ -1,0 +1,234 @@
+{
+  "name": "sentiment analysis agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Guest Review Portal",
+        "formDescription": "Please share your experience with us",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "placeholder": "Please type your full name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Please share your experience",
+              "fieldType": "textarea",
+              "placeholder": "Share your experience with us",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -300
+      ],
+      "id": "48074a55-f1c8-4de7-bf39-633d5095a056",
+      "name": "On form submission",
+      "webhookId": "f3631b6b-6abc-4e37-ac65-5d076345e066"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Please share your experience'] }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Siz bir duygu analizi uzmanısınız. Değerlendirmeler yapar ve gönderilen yorumun olumlu, olumsuz veya nötr olduğunu tek kelimeyle belirlersiniz."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -180,
+        -175
+      ],
+      "id": "4704ab72-03e9-419b-9af7-8fbafabfc67a",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -92,
+        45
+      ],
+      "id": "dc4e334b-bb9f-4c8c-8b0a-f1a42692d711",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BQmiCnylaq51PLXj",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        196,
+        -300
+      ],
+      "id": "9876a83f-490c-4d07-ba57-8e3e0710122e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qd4Kl6pVLpThtu11J7a4l-k16-BYDqqjXbzpcY72TPQ",
+          "mode": "list",
+          "cachedResultName": "sentiment sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qd4Kl6pVLpThtu11J7a4l-k16-BYDqqjXbzpcY72TPQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sayfa1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qd4Kl6pVLpThtu11J7a4l-k16-BYDqqjXbzpcY72TPQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name ": "={{ $json['Full Name'] }}",
+            "Experince": "={{ $json['Please share your experience'] }}",
+            "Review": "={{ $json.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Experince",
+              "displayName": "Experince",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Review",
+              "displayName": "Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        416,
+        -300
+      ],
+      "id": "342d5a70-e32a-4c16-827b-571ed9cfc2a2",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JAbma8fyAZutlrNI",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e05a32e8-7397-44fe-b7cc-ec7dcebc0c6c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "796f244f9b8518e8ef18525172a14bbd5792fdde2ea3ca5c2e5c163772ff12ec"
+  },
+  "id": "nPKrYUpSPZwscg8W",
+  "tags": []
+}
