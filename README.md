@@ -72,12 +72,6 @@ This workflow collects user feedback through a form, analyzes the sentiment usin
 
 ---
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 ## 🤝 Contributing
 
 Feel free to fork the repo and submit a pull request. Feedback and contributions are always welcome!
